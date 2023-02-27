@@ -1,0 +1,954 @@
+V1 => 'RxJs In Practice Course Helicopter View':
+OverView On The Course.
+-------------------------------------------------------------------------------
+V2 => 'Environment Setup - Get the Lessons Code Up and Running':
+  We Need nodeJs And Git And VSC.
+  Get A Clone From Our Repository:
+    Git Clone URLOfBRANCH
+    Git checkout -b 1-operators origin/1-operators
+    npm Install
+    npm run server
+    npm start
+-------------------------------------------------------------------------------
+V3 => 'Understanding RxJs - What are Streams?':
+Stream Is:
+  A stream is basically a sequence of data values over time. Examples:
+    addEventListener.
+    setInterval.
+    setTimeout.
+  Some Streams Never Complete Automatically, And Others Do A Task And Complete.
+-------------------------------------------------------------------------------
+V4 => 'What is RxJs? What Problem Does it Solve?':
+If We Want To Combine A Group Of Streams In Normal Way, This Will Give Us
+'callback hell', For Example@
+  let number: number= 0;
+  document.addEventListener('click', (click) => {
+    console.log(click);
+    setTimeout(() => {
+      console.log('After 5 Second, Finished.');
+      setInterval(() => {
+        console.log(number);
+        number++;
+      }, 1000);
+    }, 5000);
+  })
+  The RxJs 'Reactive Extensions for JavaScript' Is Library That Gie Us The
+  Ability Fpr Combine A Group Of Streams Together In Easy And Maintainable Way.
+  It Is Extension For avaScript.
+-------------------------------------------------------------------------------
+V5 => 'What is an RxJs Observable? A Simple Explanation':
+The Observable Is Definition 'Declaration' Of Stream. The Dollar Sign In The
+End Of The Name Variable Mean It Is RxJs Observable.
+We Have Some Method That Create Observables With Specific Rules:
+  interval(1000)
+    Method That Creates an Observable that emits sequential numbers every
+    specified interval of time, on a specified SchedulerLike.
+  timer(3000, 1000)
+    Method That Creates an Observable that starts emitting after an dueTime and
+    emits ever increasing numbers after each period of time thereafter.
+    Its like index /interval, but you can specify when should the emissions
+    start.
+  fromEvent(document, 'click')
+    FromEvent: FromEvent is a method provided by RxJs to create Observable. The
+    best thing is that we can create Observable from DOM events directly. By
+    DOM events, it means click event, key up events, scroll events, etc.
+Examples:
+  const VariableName$ = interval(1000);
+  VariableName$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+  const VariableName$ = timer(3000, 1000);
+  VariableName$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+  const VariableName$ = fromEvent(document, 'click');
+  VariableName$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+  The subscribe Make The Observable A Stream Of Values.
+  The Observable<SpecificType> Mean The Data Inside The Stream His Type Value
+  Will Be The SpecificType.
+-------------------------------------------------------------------------------
+V6 => '3 Core RxJs Concepts - Errors, Completion and Subscriptions':
+An observer is an object with three methods that are notified:
+next() − This method will send values like a number, string, object etc.
+complete() − This method will not send any value and indicates the observable
+as completed.
+error() − This method will send the error if any.
+If The error Work The Complete Will Not, And vice versa. And If Any Of These
+Two Methods Work The next Will Stop. Clarification Of Design Pattern:
+  ObsName$.subscribe({
+    next: (nextPara) => {Code Block},
+    error: (errorPara) => {Code Block},
+    complete: () => {Code Block},
+  })
+For Stop An Observable Stream From Work We Can Use The Object Instance From The
+Subscription Class, Like:
+  const ObsName$ = timer(3000, 1000);
+  const SubscriptionVariable$ = ObsName$.subscribe({
+    next: (nextPara) => Code Block
+  })
+  SubscriptionVariable$.unsubscribe();
+  The Type Of The SubscriptionVariable Is Subscription.
+    The Instance From The Subscription Class:
+      is an object that represents a disposable resource, usually the execution
+      of an Observable. A Subscription has one important method, unsubscribe,
+      that takes no argument and just disposes the resource held by the
+      subscription. In previous versions of RxJS, Subscription was called
+      "Disposable". It essentially just has an unsubscribe() function to
+      release resources or cancel Observable executions.
+The Code For All These Previous Lectures:
+  ngOnInit() {
+    const interval$ = interval(1000);
+    console.log(interval$);
+    interval$.subscribe({
+      next: (nextPara) => console.log(nextPara)
+    })
+    const timer$ = timer(3000, 1000);
+    console.log(timer$);
+    const timerFather$ = timer$.subscribe({
+      next: (nextPara) => console.log(nextPara)
+    })
+    setTimeout(() => {
+      timerFather$.unsubscribe();
+      console.log(timerFather$);
+    }, 10000);
+    const eventObs$ = fromEvent(document, 'click');
+    eventObs$.subscribe({
+      next: (nextPara) => console.log(nextPara),
+      error: (errorPara) => {console.log(errorPara)},
+      complete: () => console.log('Complete.')
+    })
+  }
+-------------------------------------------------------------------------------
+V7 => 'How Observables Work Under the Hood, Build Your Own HTTP Observable':
+Response:
+  Just You Define It, He Will Start Work.
+Observable:
+  Even You Define It, He Will Not Start Work Until You Subscribe With It.
+We Can Use The Fetch For Fetch A Data From Specific URL. The Fetch Return A
+Promise.
+For Create An Observable We Use:
+  const NameOfObservable$ = new Observable((NameOfParameter: Observer<object>) => {
+      NameOfParameter.next(NextArgument);
+      NameOfParameter.complete();
+      NameOfParameter.error(ErrorArgument);
+    }
+  )
+});
+  The Type Of NextArgument Is Object.
+  The Type Of ErrorArgument Is Any.
+We Can Easily Use The NameOfObservable Stream With Any Others Stream Like
+Events Or intervals Or Any Others Streams...
+  Clarification:
+    NameOfObservable$.subscribe({
+      next: (nextPara) => console.log(nextPara),
+      error: (errorPara) => console.log(errorPara),
+      complete: () => console.log('The Observable completed.'),
+    })
+    nextPara Is The NextArgument.
+    errorPara Is The ErrorArgument.
+The closed property indicates whether or not the subscription has been
+unsubscribed, either manually or automatically (if the observable completes or
+errors).
+-------------------------------------------------------------------------------
+V8 => 'What are RxJs Operators? Learn the Map Operator':
+The Map operator applies a function of your choosing to each item emitted by
+the source Observable, and returns an Observable that emits the results of
+these function applications.
+The Map Operator Create An Observable That His item From Other Observable But
+These Items Passed From And Function That Can Change Them. For Example:
+import { map } from 'rxjs/operators';
+export class AboutComponent implements OnInit {
+NameOfObservable$.pipe(
+      map((mapPara) => {
+        return CodeBlock;
+      })
+    )
+  }
+Pipe:
+  Method Allow To Us Chain Multiple Operators, For Produce New Observable.
+The mapPara Is The Success Response 'nextPara', The Map Will Not Work If The
+Observable Has An Error.
+Object.values(Parameter)
+  returns an array whose elements are strings corresponding to the enumerable
+  string-keyed property values found directly upon object .
+  Parameter
+    His Type Is Object that contains the properties and methods. This can be
+    an object that you created or an existing Document Object Model (DOM)
+    object.
+-------------------------------------------------------------------------------
+V9 => 'Building Components with RxJs - Imperative Design':
+Use Te Filter HoF For Filter The Coming Object Dependent On The Values Of Their
+Properties.
+In Subscribe Method We Shouldn't Write A Lot Of Logic Or Write Other Subscribe
+Method Inside It
+-------------------------------------------------------------------------------
+V10 => 'Building Components with RxJs - Reactive Design':
+We Can Use The Map Operator With The Filter Instead Of The Subscribe Method
+With The Filter.
+For Determine The Return Type Of The HoF Filter:
+  ArrayName.filter((filterPara :Type) => {
+    return (Boolean Code Block)
+  })as Type[];
+The Pipe Async Subscribe And Return The Success Response For A Observable, And
+Also Automatically Unsubscribe When the Component Of This Observable Destroy.
+map => Return Observable.
+filter => Return An Array From The Parameter's Type.
+-------------------------------------------------------------------------------
+V11 => 'Sharing HTTP Responses with the shareReplay Operator':
+You generally want to use shareReplay when you have side-effects or taxing
+computations that you do not wish to be executed amongst multiple subscribers.
+It may also be valuable in situations where you know you will have late
+subscribers to a stream that need access to previously emitted values. This
+ability to replay values on subscription is what differentiates share and
+shareReplay.
+Clarification:
+  The ShareReplay For Specific Observable Prevent This Observable Executed
+  'Observable Behavior, Observable Process' Twice For The Same Response
+  'OutPut'.
+tap
+  operator works When Subscribe to a source observable. And new value arrives
+  from a source observable.
+The map operator will simply apply a function to that data and return the
+result. The tap operator however takes a data, apply a function to that data
+but returns the original data, if the function bothered to return a result, tap
+just ignores it.
+-------------------------------------------------------------------------------
+V12 => 'Observable Concatenation - In-Depth Explanation':
+RxJS of() operator is a creation operator used to convert the arguments to an
+observable sequence. It emits a variable amount of values in a sequence and
+then returns a complete notification. In other words, we can say that the RxJS
+of() operator takes the arguments passed and convert them to observable.
+The RxJS concat() operator is a join operator that creates an output
+Observable, which sequentially emits all values from the given Observable and
+then proceed to the next one.
+Parameter Explanation
+  It specifies that the input given is an array of Observables, Or Group Of
+  Observable Separate By Comma.
+Return value
+  The concat() operator's return value is an observable that gives a single
+  value merged from the values of the different source observables.
+Very Important Note:
+  the next transaction (subscription) cannot start until the previous
+  completes!, That Mean All The Observable In Our Concat Operator Should Have
+  An Complete Method For Work Properly.
+-------------------------------------------------------------------------------
+V13 => 'Form Draft Pre-Save Example and the RxJs Filter Operator':
+valueChanges
+  Use Case:
+    this.AbstractControlInstance.valueChanges
+  A multicasting observable that emits an event every time the value of the
+  control changes, in the UI or programmatically. It also emits an event each
+  time you call enable() or disable() without passing along {emitEvent: false}
+  as a function argument.
+  The ValueChanges is an event raised by the Angular forms whenever the value
+  of the FormControl, FormGroup, or FormArray changes. It returns an observable
+  so that you can subscribe to it. The observable get the latest value of the
+  control. It allows us to track changes made to the value in real-time and
+  respond to them. For example, we can use it to validate the value, calculate
+  the computed fields, etc.
+  His Output Is Observable That Will Emit Value If We Subscribe With It, Every
+  Time We Change The Value Of Each Data Inside It.
+filter
+Is An FUNCTION, OPERATOR Filter items emitted by the source Observable by only
+emitting those that satisfy a specified predicate 'Function Return'. For
+Example:
+  this.AbstractControlInstance.valueChanges
+  .pipe(
+    filter((filterPara) => {
+      return Boolean Code Block;
+    })
+  )
+For Save A Object In Specific Data We Can Use This Method:
+  fetch(`UrlForPost`, {
+    method: 'PUT',
+    body: JSON.stringify(VariableName),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }))
+  method: 'PUT'
+    The Default Value For method Is GET So For Change The actions From Get Data
+    To Put Data We Use It.
+  body: JSON.stringify(VariableName)
+    The VariableName Is The Variable That We Will Put In The Api.
+  headers
+    The Headers interface of the Fetch API allows you to perform various
+    actions on HTTP request and response headers. These actions include
+    retrieving, setting, adding to, and removing headers from the list of the
+    request's headers.
+    HTTP Headers are an important part of the API request and response as they
+    represent the meta-data associated with the API request and response.
+    Headers carry information for: Request and Response Body. Request
+    Authorization.
+  'content-type': 'application/json'
+    Indicates that the request body format is JSON. application/xml. Indicates
+    that the request body format is XML.
+For Convert Promise To An Observable We Use The Form Operator:
+  const ObservableName$ = from(Promise)
+-------------------------------------------------------------------------------
+V14 => 'RxJs concatMap Operator - In-Depth Explanation and Practical Example':
+concatMap
+Is A FUNCTION, OPERATOR. Projects each source value to an Observable which is
+merged in the output Observable, in a serialized fashion waiting for each one
+to complete before merging the next.
+this.AbstractControlInstance.valueChanges
+.pipe(
+  concatMap((ConcatMapPara) => return this.saveCourses(ConcatMapPara))
+)
+The concatMap Take The Values From The ValueChanges Observable, And Create New
+Observable, And Subscribe To Them, And Concatenation Them Together.
+-------------------------------------------------------------------------------
+V15 => 'Understanding the merge Observable combination Strategy':
+The Previous Code In AboutComponent:
+  const source1$ = of(1, 2, 3);
+  console.log(source1$);
+  source1$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+  const source2$ = of(4, 5, 6);
+  const source3$ = of(7, 8, 9);
+  const source$ = concat([source1$, source2$, source3$])
+  console.log(source$);
+  source$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+  const sourceTwo$ = concat(source1$, source2$, source3$)
+  console.log(sourceTwo$);
+  sourceTwo$.subscribe({
+    next: (nextPara) => console.log(nextPara)
+  })
+The Merge Is New Strategy For Combining The Observables.
+Merge:
+Turn multiple observables into a single observable.
+merge subscribes to each given input Observable (as arguments), and simply
+forwards (without doing any transformation) all the values from all the input
+Observables to the output Observable. The output Observable only completes once
+all input Observables have completed. Any error delivered by an input
+Observable will be immediately emitted on the output Observable.
+Merge Is Ideal For Dealing With Asynchronous Operators In Parallel.
+-------------------------------------------------------------------------------
+V16 => 'The RxJs mergeMap Operator - In-Depth Explanation':
+mergeMap Is Ideal For Dealing With Http Request In Parallel.
+Returns an Observable that emits items based on applying a function that you
+supply to each item emitted by the source Observable, where that function
+returns an Observable, and then merging those resulting Observables and
+emitting the results of this merger.
+concatMap : behaves like a queue: It stores all calls and sends one after
+another. If one is completed, the next one is being processed. mergeMap : Also
+sends all requests, like concatMap but does not wait until the response is
+coming back. It sends them out as they come.
+-------------------------------------------------------------------------------
+V17 => 'The RxJs exhaustMap Operator - In-Depth Explanation':
+ngAfterViewInit
+  export class ClassName implements AfterViewInit {
+    ngAfterViewInit() {
+      Code Block;
+    }
+  }
+  A callback method that is invoked immediately after Angular has completed
+  initialization of a component's view. It is invoked only once when the view
+  is instantiated.
+fromEvent
+  Is A FUNCTION That Creates an Observable that emits events of a specific type
+  coming from the given event target.
+AbstractControlInstance.value
+  The current value of the control.
+  FormControl: the current value.
+  enabled FormGroup: the values of enabled controls as an object with a
+  key-value pair for each member of the group.
+  disabled FormGroup: the values of all controls as an object with a
+  key-value pair for each member of the group.
+  FormArray: the values of enabled controls as an array.
+The Button Type Is MatButton, It A Class From The '@angular/material/button'
+Library.
+  Angular Material buttons are native <button> or <a> elements enhanced with
+  Material Design styling and ink ripples.
+  Angular Material uses native <button> and <a> elements to ensure an
+  accessible experience by default. A <button> element should be used for any
+  interaction that performs an action on the current page. An <a> element
+  should be used for any interaction that navigates to another URL. All
+  standard accessibility best practices for buttons and anchors apply to
+  MatButton.
+  For Get The NativeElement:
+    this.NameOfTemplateVariables._elementRef.nativeElement
+exhaustMap
+  Is An FUNCTION, OPERATOR That Projects each source value to an Observable
+  which is merged in the output Observable only if the previous projected
+  Observable has completed.
+  Returns an Observable that emits items based on applying a function that you
+  supply to each item emitted by the source Observable, where that function
+  returns an (so-called "inner") Observable. When it projects a source value to
+  an Observable, the output Observable begins emitting the items emitted by
+  that projected Observable. However, exhaustMap ignores every new projected
+  Observable if the previous projected Observable has not yet completed. Once
+  that one completes, it will accept and flatten the next projected Observable
+  and repeat this process.
+  The reason to use 'exhaustMap' is that the values from the source observables
+  are ignored as long as the inner observable is still in progress. So in this
+  case, during some of your clicks(which is treated as the source observable),
+  the inner observable(which is the put request) is already in the progress.
+-------------------------------------------------------------------------------
+V18 => 'Unsubscription In Detail - Implementing a Cancellable HTTP Observable':
+  The Code For Previous Lectures:
+    const interval$ = interval(1000);
+    interval$.subscribe({
+      next: (nextPara) => console.log(nextPara)
+    })
+    const intervalTen$ = interval$.pipe(
+      map((mapPara) => mapPara * 10)
+    )
+    intervalTen$.subscribe({
+      next: (nextPara) => console.log(nextPara)
+    })
+    const merge$ = merge(interval$, intervalTen$);
+    merge$.subscribe({
+      next: (nextPara) => console.log(nextPara)
+    })
+We Can Unsubscribe From An Observable Dependent On The Logic Of This
+Observable, This Example For Simple Observable:
+  const interval$ = interval(1000);
+  const sub = interval$.subscribe(console.log);
+  setInterval(()=> sub.unsubscribe(), 5000)
+  unsubscribe
+    Method That Cancel The Subscribe For An Observable.
+For Observable That Have Inside It Fetch Api Method, It's Already Have Support
+For Cancellation.
+AbortController
+  AbortController interface represents a controller object that allows you to
+  abort one or more Web requests as and when desired.
+  You can create a new AbortController object using the AbortController()
+  constructor. Communicating with a DOM request is done using an AbortSignal
+  object.
+For Link Our Fetch With A Instance Object From AbortController We Write:
+  let InstAbortController = new AbortController();
+  let InstSignal = InstAbortController.signal;
+  fetch(StringUrl, {InstSignal})
+  In This Fetch When We Apply The InstAbortController.abort() That Will Abort
+  The Current Request 'Fetch' Operator.
+The Function That Help Us For Create An Observable new Observable(), Accept
+Like A Return An Function That Will Apply Inside It the Logic For Stop The
+Observable Dependent On The Logic Of Executed. For Example:
+  new Observable((ObsPara: Observer<object>) => {
+      return () => {
+        Code Block For Stop The Executed Of Observable
+      } ;
+    });
+  }
+  We When Write The Instance For Subscription With The Unsubscribe Method He
+  Will Automatically Call This Function For Work.
+The Request That Canceled Show In he Network Browser Tab With The Status
+(canceled).
+-------------------------------------------------------------------------------
+V19 => 'Setting Up the Course Component':
+(ObservableName$ | async) as AliasName
+  This Is A Syntax That You Will See A Lot In Angular Template.
+  The ObservableName$: Observable.
+  async: async Pipe That Automatically Subscribe To The Observable And Get The
+  Success Response Of This Observable.
+  AliasName Is Just An Alias For The (ObservableName$ | async) For Simplify The
+  Use Inside The Template's Elements.
+The Fetch Is A Promise Is This Promise Success The Response Will Be An Object
+Of Type Response, This Object Have An Data Inside It But We Can Not Access
+Directory To It, We Need The json() Method For This.
+The Fetch Always Success.
+-------------------------------------------------------------------------------
+V20 => 'Building a Search typeahead - debounceTime and distinctUntilChanged':
+debounceTime:
+  Is A FUNCTION, OPERATOR. That Emits a notification from the source Observable
+  only after a particular time span has passed without another source emission.
+  debounceTime delays notifications emitted by the source Observable, but drops
+  previous pending delayed emissions if a new notification arrives on the
+  source Observable. This operator keeps track of the most recent notification
+  from the source Observable, and emits that only when dueTime has passed
+  without any other notification appearing on the source Observable. If a new
+  value appears before dueTime silence occurs, the previous notification will
+  be dropped and will not be emitted and a new dueTime is scheduled.
+  The Order Of The debounceTime Inside The Pipe Method Have A Rule.
+distinctUntilChanged:
+  Is A FUNCTION, OPERATOR. Returns a result Observable that emits all values
+  pushed by the source observable if they are distinct in comparison to the
+  last value the result observable emitted.
+-------------------------------------------------------------------------------
+V21 => 'Finishing the Search typeahead - The switchMap Operator':
+The main difference between switchMap and other flattening operators is the
+cancelling effect. On each emission the previous inner observable (the result
+of the function you supplied) is cancelled and the new observable is
+subscribed. You can remember this by the phrase switch to a new observable.
+This works perfectly for scenarios like typeaheads where you are no longer
+concerned with the response of the previous request when a new input arrives.
+This also is a safe option in situations where a long lived inner observable
+could cause memory leaks, for instance if you used mergeMap with an interval
+and forgot to properly dispose of inner subscriptions. Remember, switchMap
+maintains only one inner subscription at a time, this can be seen clearly in
+the first example.
+Be careful though, you probably want to avoid switchMap in scenarios where
+every request needs to complete, think writes to a database. switchMap could
+cancel a request if the source emits quickly enough. In these scenarios
+mergeMap is the correct option.
+switchMap
+Is A FUNCTION, OPERATOR. Projects each source value to an Observable which is
+merged in the output Observable, emitting values only from the most recently
+projected Observable.
+Returns an Observable that emits items based on applying a function that you
+supply to each item emitted by the source Observable, where that function
+returns an (so-called "inner") Observable. Each time it observes one of these
+inner Observables, the output Observable begins emitting the items emitted by
+that inner Observable. When a new inner Observable is emitted, switchMap stops
+emitting items from the earlier-emitted inner Observable and begins emitting
+items from the new one. It continues to behave like this for subsequent inner
+Observables.
+concatMap then calls its callback only when the previous inner Observables
+completes. On the other hand, concat just accepts a list of Observables and
+subscribes to them one after another when the previous Observable completes.
+-------------------------------------------------------------------------------
+V22 => 'RxJs Error Handling - The Catch and Replace Error Handling Strategy':
+We Have A Lot Of Strategy For Dealing With The Errors Of Observables, One Of
+Them Is By Use An Alternative Value That Will Be The Value Emitted By An
+Observables Create Inside The Callback Function For The catchError Operator.
+For Example:
+  catchError(catchPara => {
+    return Code Block Create Specific Observable
+    })
+catchError
+  Is A FUNCTION, OPERATOR. That Catches errors on the observable to be handled
+  by returning a new observable or throwing an error.
+-------------------------------------------------------------------------------
+V23 => 'The Catch and Rethrow RxJs Error Handling Strategy and the finalize':
+Fetch:
+  Think of a fetch as a simple Javascript Promise. You send a request to the
+  server/API and expect to receive a response. The Fetch Api gives us the
+  fetch() method, which allows us to access those requests and responses, using
+  Javascript.
+  We pass the URI (path) we want to fetch from (‘examples/examples.json’) as an
+  argument of the fetch method.
+  The call returns a “promise” which eventually resolves into a response. Note
+  that a “promise” is not the actual response. Think of it as a proxy to the
+  response.
+  Once the response comes through, it is passed to .then method for use.
+  If there is an error in completing the request, for example if there is no
+  network connection, the .catch is passed the appropriate error as a
+  parameter. Note that an error like 404 (a bad response) is still a valid
+  “response” (the server returned something to us) and therefore wouldn’t be
+  considered an uncompleted response.
+How do we check for a successful response?
+  Since the fetch promise would only reject a request if it was unable to
+  complete it, we need to manually validate if a response is good and throw an
+  error if it is not.
+  A generic response from a server looks something similar to this, when logged
+  on the console:
+    [object Response] {
+      body: (...)
+      bodyUsed: false
+      headers: Headers {}
+      ok: true
+      redirected: false
+      status: 200
+      statusText: "OK"
+      type: "cors"
+      url: "URL"
+    }
+   to evaluate the status of a response you can use its properties:
+    “response.ok”- checks for a status in the 200s and returns a boolean .
+    “response.status”- returns an integer with the response status code.
+    Default is 200.
+    “response.statusText”- returns a string who’s default is “OK” or a relevant
+    error message
+So For Triggered The catch Method Every Time We Do Not Have A Response 200, We Write:
+  fetch('examples/example.json')
+    .then(response => {
+	    if (!response.ok) {
+	    throw new Error(response.statusText);
+		}
+		// Here is where you put what you want to do with the response.
+	})
+	.catch(error => {
+		Code Block For Dealing With The Error.
+	});
+  We have an if-statement that basically says if response.ok is not true, throw
+  an error with the response.statusText, which will then trigger the .catch.
+For Make The Fetch That Inside The Observable Triggered The Catch Error We Can
+Write:
+  if(response.ok){
+    return response.json()
+  }else{
+    SomeName.error(Code Block For Error)
+  }
+  The Code Block For Error Will Be The Argument For The Function That Inside
+  The catchError Operator, So We Can Deal With It.
+finalize:
+  finalize
+  Is A FUNCTION, OPERATOR. Returns an Observable that mirrors the source
+  Observable, but will call a specified function when the source terminates on
+  complete or error. The specified function will also be called when the
+  subscriber explicitly unsubscribes.
+Each Method RxJs 'Operator' That You Want To Executed One Time For Each Reload
+Even More Than One Variable Need, You Should Put It After The shareReplay RxJs.
+Specifically The catchError And The finalize Operators.
+  throwError
+Creates an observable that will create an error instance and push it to the
+consumer as an error immediately upon subscription.
+Creates an Observable that emits no items to the Observer and immediately emits
+an error notification.
+-------------------------------------------------------------------------------
+V24 => 'The Retry RxJs Error Handling Strategy':
+The Code For The Previous Lectures:
+  catchError(error => {
+    console.log(`Error Occurred: ${error}`);
+    return throwError(error)
+  }),
+  catchError(catchPara => of([
+    {
+      id: 0,
+      description: "Test Catch Error",
+      iconUrl: 'URL',
+      courseListIcon: 'URL',
+      longDescription: "Alternative Observable Instead The Original.",
+      category: 'BEGINNER',
+      lessonsCount: 1
+    }
+  ])
+  ),
+  finalize(() => {
+    console.log('The Observable Finalize.')
+  }),
+Some Request Is Failed But If We Retry To Send The Request Again We Have A
+Chance That This Time The Request Success.
+retryWhen
+  Is A FUNCTION, Operator. Will DEPRECATED.It Returns an Observable that
+  mirrors the source Observable with the exception of an error. If the source
+  Observable calls error, this method will emit the Throwable that caused the
+  error to the ObservableInput returned from notifier. If that Observable calls
+  complete or error then this method will call complete or error on the child
+  subscription. Otherwise this method will resubscribe to the source
+  Observable.
+  Clarification:
+    When The Observable Have An Error, The retryWhen Work And Take Inside It A
+    Function That His Parameter Is An Observable 'A mirrors From The Origin
+    Observable' And Automatically Subscribe With It And urn This Process Until
+    This New Observable Success. For Example:
+      retryWhen( error => error )
+        This Line Mean Every Time The Origin Observable Failed The retryWhen
+        Will Subscribe With The error 'mirrors From The Origin Observable His
+        Type Is Subject' Until This Last Observable Success.
+    For Add A Time Between A Retry And Others:
+      retryWhen(error => {
+        return error.pipe(
+          delayWhen(() => timer(2000))
+        )
+      })
+delayWhen
+  Is A FUNCTION, OPERATOR. Delays the emission of items from the source
+  Observable by a given time span determined by the emissions of another
+  Observable.
+  Clarification:
+    The emissions From The error That Because The Subscribe Of retryWhen Will
+    Delay 2000 MilliSecond Because Of The delayWhen And timer Inside It.
+Different Between Delay And DelayWhen:
+  The Delay operator delays by a given timeout or until a given Date. The
+  DelayWhen delays until it receives a notification from another observable.
+delay
+  Is FUNCTION, OPERATOR. Delays the emission of items from the source
+  Observable by a given timeout or until a given Date.
+RetryWhen DEPRECATED:
+-------------------------------------------------------------------------------
+V25 => 'The startWith RxJs Operator - Simplifying the Course Component':
+startWith
+Is A FUNCTION, OPERATOR. That Returns an observable that, at the moment of
+subscription, will synchronously emit all values provided to this operator,
+then subscribe to the source and mirror all of its emissions to subscribers.
+The Place Is Very Important.
+-------------------------------------------------------------------------------
+V26 => 'RxJs Throttling vs Debouncing - Understand the Differences':
+throttle
+  Is A FUNCTION, OPERATOR. That Emits a value from the source Observable, then
+  ignores subsequent source values for a duration determined by another
+  Observable, then repeats this process.
+throttleTime
+  Is A FUNCTION, OPERATOR. That Emits a value from the source Observable, then
+  ignores subsequent source values for duration milliseconds, then repeats this
+  process.
+the:
+  throttle(() => interval(500)) Is The Same Like: throttleTime(500).
+-------------------------------------------------------------------------------
+V27 => 'Implementing a Custom RxJs Operator - the Debug Operator':
+tap
+  Is A FUNCTION, OPERATOR. That Used to perform side-effects for notifications
+  from the source observable.
+  Clarification:
+    Is Used For Show The Current Values... WithOut Effect On Them.
+Operators:
+  Essentially An HoF 'Higher Order Function' That Take An Observable Like An
+  Input, And Return Observable Like OutPut.
+  Operators are an important part of RxJS. An operator is a pure function that
+  takes in observable as input and the output is also an observable.
+Higher Order Function
+  Is A function That Take Other Function Like An Argument.
+  Basically, a function which takes another function as an argument or returns
+  a function is known as a higher order function.
+The Structure For An Operator:
+  export const debug = (level: number, message: string) =>
+    (observableSource: Observable<any>) => observableSource.pipe(
+      tap(val => {
+        console.log(`${message} : ${val}`);
+      })
+    )
+    The 'debug' Is OperatorName That Is An Anonymous Higher Order Function That
+    Have Two Parameter 'level' And 'number' And This Anonymous Function Return
+    Other Anonymous Function That His Parameter Is 'observableSource' that His
+    Type 'Observable<any>' This Function Return An Observable Dependent On
+    The 'observableSource' In Each Case And The Code Block...
+-------------------------------------------------------------------------------
+V28 => 'Implementing a Custom RxJs Operator - the Debug Operator':
+The Contact Of A String With An Object Make The Object Unreadable, The Solution
+Is Use The ',' Between The Two Types.
+The Operator Is An Function That Return Other Function, That Second One Should
+Return An Observable. And We Can Add Our Ideas And Our Logic To It.
+-------------------------------------------------------------------------------
+V29 => 'RxJs forkJoin Operator - In Depth Explanation and Practical Example':
+timer
+  Is A FUNCTION, Operator. That Creates an observable that will wait for a
+  specified time period, or exact date, before emitting the number 0.
+forkJoin
+  Is A FUNCTION, Operator. That Accepts an Array of ObservableInput or a
+  dictionary Object of ObservableInput and returns an Observable that emits
+  either an array of values in the exact same order as the passed array, or a
+  dictionary of values in the same shape as the passed dictionary.
+  operator that takes any number of input observables which can be passed
+  either as an array or a dictionary of input observables. If no input
+  observables are provided (e.g. an empty array is passed), then the resulting
+  stream will complete immediately.
+  She will wait for all passed observables to emit and complete and then it
+  will emit an array or an object with last values from corresponding
+  observables.
+  If you pass an array of n observables to the operator, then the resulting
+  array will have n values, where the first value is the last one emitted by
+  the first observable, second value is the last one emitted by the second
+  observable and so on.
+  Array of ObservableInput:
+    const ObservableName1$ = Code Block For Create An Observable;
+    const ObservableName2$ = Code Block For Create An Observable;
+    forkJoin([ObservableName1$, ObservableName2$])
+      .pipe(
+        tap((tapPara) => console.log(tapPara)),
+        tap(([tapPara1, tapPara2]) => console.log(tapPara1, tapPara2)),
+      ).subscribe()
+        The tapPara:
+          represent An Array Of The Last Values Emitted From The
+          ObservableName1 And ObservableName2.
+        The tapPara1:
+          represent The Last Value Emitted From The ObservableName1.
+        The tapPara2:
+          represent The Last Value Emitted From The ObservableName2.
+  dictionary Object:
+    const ObservableName = forkJoin({
+      Name1: CodeBlock Create Observable,
+      Name2: CodeBlock Create Observable,
+      Name3: CodeBlock Create Observable
+    });
+    Result Of Observable, The Item That He Will Emit When All Those Observables
+    Finish:
+      { Name1: Last Value Emitted By This Observable ,
+      Name2: Last Value Emitted By This Observable,
+      Name3: Last Value Emitted By This Observable }
+-------------------------------------------------------------------------------
+V30 => 'Subjects and Stores - New Section Kickoff':
+  Command For Set Up New Project With Different Branch:
+    Git Clone URLOfBRANCH
+    Git checkout -b 2-store origin/2-store
+    npm Install
+    npm run server
+    npm start
+-------------------------------------------------------------------------------
+V31 => 'What are RxJs Subjects? A Simple Explanation':
+Subject:
+  The Normal Way For Create An Observable, We Had A Separation Between The
+  Observable 'constructor' And The Parameter That Represent The Observer And
+  His Type Is Observer That Control In The Behavior Of The Observable And What
+  He Emit... 'Next, Complete, Error'. For Subject He Is The Observable And The
+  Observer
+  is a special type of Observable that allows values to be multicasted to many
+  Observers. While plain Observables are unicast (each subscribed Observer owns
+  an independent execution of the Observable), Subjects are multicast. A
+  Subject is like an Observable, but can multicast to many Observers.
+  The Method For A Subject:
+      next() Method For The Observer.
+      error() Method For The Observer.
+      complete() Method For The Observer.
+      pipe() Method For The Observable.
+      asObservable()
+        Creates a new Observable with this Subject as the source. You can do
+        this to create customize Observer-side logic of the Subject and conceal
+        it from code that uses the Observable. It returns Observable that the
+        Subject casts to.
+It Normal To Share The Observable That Is Derived From The Subject, Because
+They Can't Change The Behavior Of The Observable From It. But We Shouldn't
+Share The Subject Him Self.
+The Place Of Declaration And Subscribe To The Observable Is Very Important, We
+Can Not Unsubscribe From This Type Of Observables.
+Hot And Cold Observables:
+  When the data is produced by the Observable itself, we call it a cold
+  Observable. When the data is produced outside the Observable, we call it a
+  hot Observable.
+Observables: Unicasting, Cold.
+Subjects: multicasting, Hot.
+-------------------------------------------------------------------------------
+V32 => 'BehaviorSubject In Detail - When to Use it and Why?':
+BehaviorSubject
+  Is A CLASS That Requires an initial value and emits the current value to new
+  subscribers.
+  A variant of Subject that requires an initial value and emits its current
+  value whenever it is subscribed to.
+In the Normal Subject When We Have A New Subscriber He Will Not Have Any Of The
+Previous Emitted Value From The Subject, Because The Subject Is Hot 'The Values
+Send After The Subscribe', But If We Use The BehaviorSubject Instead Of The
+Subject The Observable Always He Have A Initial Emitted Value And She Will Be
+The Last Emitted Value From BehaviorSubject Before The Subscribe Action.
+If We Have A Subscriber After The Subject Complete He Will Not Take Any Value
+From The Original BehaviorSubject.
+-------------------------------------------------------------------------------
+V33 => 'AsyncSubject and ReplaySubject - Learn the Differences':
+AsyncSubject:
+  Is A CLASS, A variant of Subject that only emits a value when it completes.
+  It will emit its latest value to all its observers on completion.
+  Emits its last value on completion.
+  AsyncSubject is a variant of a Subject which keeps the last value emitted by
+  a source observable before completion and sends it to all new subscriptions.
+  AsyncSubject needs to wait until the source observable completes before
+  identifying the current value as the latest and only then emit it to existing
+  or future subscribers.
+  This behavior means that you can always directly get the last emitted value
+  from the AsyncSubject even if the subscriber subscribes much later than the
+  value was stored.
+ReplaySubject:
+  "Replays" or emits old values to new subscribers, He Do Not Linked With The
+  Completion Of The Subject.
+-------------------------------------------------------------------------------
+V34 => 'Store Service Design - What Subject to Use?':
+If We Have An Observable That Contact With An API Or Server Inside An
+Component, Every Time We Destroy This Component and Build It Again The Contact
+With The OutSide Will Replay Even The Data That Come It Is The Same Previous
+Data. The Solution For This Issue We Should Store This Data In The Client Side
+So Each Time The Component Create We Can Pass To Hem The Data That We Already
+Store. 'central place in Client memory for store the date'.
+This Configuration Mean:
+Create A Class And MaKe It Angular Service.
+The Configuration Inside The @Injectable Mean There Is One Store For The Whole
+Application.
+  @Injectable({
+    providedIn: 'root',
+  })
+  export class Store{Code Block}
+Detect The Type Of The Values That Will Sort From The Subject:
+  subjectName= new Subject<Type>();
+  That Will Prevent Us From Add To The Next Method A Value Their Type Not The
+  Same Like Type <Type>.
+Injectable()
+  decorator is used to inject other services or objects into your service. If
+  your service do not have any dependencies then you don't need to add
+  Injectable() decorator.
+-------------------------------------------------------------------------------
+V35 => 'Store Pattern, Loading Initial Data, Selector Methods, Consuming Data':
+If We Have A Function Duplicate Two Times With Different Parameter We Can
+Collect Them In Our Function With Some Parameter.
+We Should Make The Observable That Will Git The Data From The BackEnd Work Just
+One Time In The Start Of Application And For This We Should Put The Function
+That Will Call The Back End The The Main Component 'app.component.ts'. Because
+Is The First Component That Initialize And Never Destroy. Add Of This All The
+Process Of Mapping Filtering... And All The Operator Should Be In The Service
+Class Functions, The Component Should Just Implement And Projection These
+Function In The View By Subscribe To The Observable 'async' And Take The Result
+For Build The View.
+-------------------------------------------------------------------------------
+V36 => 'BehaviorSubject Store - Example of a Data Modification Operation':
+MatDialogRef:
+  The MatDialog service can be used to open modal dialogs with Material Design
+  styling and animations.
+  The MatDialogRef provides a handle on the opened dialog. It can be used to
+  close the dialog and to receive notifications when the dialog has been
+  closed. Any notification Observables will complete when the dialog closes.
+  A dialog is opened by calling the open method with a component to be loaded
+  and an optional config object. The open method will return an instance of
+  MatDialogRef : let dialogRef = dialog. open(UserProfileComponent, { height:
+  '400px', width: '600px', }); The MatDialogRef provides a handle on the opened
+  dialog.
+BehaviorSubject.getValue
+  Method For The BehaviorSubject Specifically, Return The Last Value Emitted
+  From The Subject Even The Subject completing Or Not, Dependent On The Time
+  Of Call The Method.
+MatDialogRef.close()
+  The MatDialogRef provides a handle on the opened dialog. It can be used to
+  close the dialog and to receive notifications when the dialog has been
+  closed. Any notification Observables will complete when the dialog closes.
+ARRAY.findIndex()
+  The findIndex method returns the index of the first element in an array that
+  satisfies the provided testing function. If no elements satisfy the testing
+  function, -1 is returned.
+ARRAY.slice()
+  method returns a shallow copy of a portion of an array into a new array
+  object selected from start to end (end not included) where start and end
+  represent the index of items in that array. The original array will not be
+  modified.
+form
+  Is A FUNCTION, OPERATOR. Turn an array, promise, or iterable into an
+  observable.
+  This operator can be used to convert a promise to an observable!
+  For arrays and iterables, all contained values will be emitted as a sequence!
+  This operator can also be used to emit a string as a sequence of characters!
+The Observable That Child For Other Observable, Can Use The Data From His Father
+Even The Father Observable Do Not Have The Subscribe Method.
+-------------------------------------------------------------------------------
+V37 => 'Refactoring the Course Component for Using the Store':
+find
+  Returns the value of the first element in the array where predicate is true,
+  and undefined otherwise.
+  filter() returns an array containing the element that satisfies the
+  condition, but find() returns the element itself that satisfies the
+  condition.
+The Observable Of Our Subject Never Complete, And This Is A Problem.
+-------------------------------------------------------------------------------
+V38 => 'Forcing the Completion of Observables - First and Take Operators':
+First
+  Is A FUNCTION, OPERATOR. emit only the first item (or the first item that
+  meets some condition) emitted by an Observable
+  The counterpart to first is last!
+  First will deliver an EmptyError to the Observer's error callback if the
+  Observable completes before any next notification was sent. If you don't want
+  this behavior, use take(1) instead.
+take
+  Is A FUNCTION, OPERATOR. Emits only the first count values emitted by the
+  source Observable.
+  take returns an Observable that emits only the first count values emitted by
+  the source Observable. If the source emits fewer than count values then all
+  of its values are emitted. After that, it completes, regardless if the source
+  completes.
+-------------------------------------------------------------------------------
+V39 => 'The withLatestFrom RxJs Operator - Detailed Explanation':
+withLatestFrom
+  Is A FUNCTION, OPERATOR. Combines the source Observable with other
+  Observables to create an Observable whose values are calculated from the
+  latest values of each, only when the source emits.
+  Whenever the source Observable emits a value, it computes a formula using
+  that value plus the latest values from other input Observables, then emits
+  the output of that formula.
+  OriginalObservable
+    .pipe(
+      withLatestFrom(SecondObservable)
+    ).subscribe({
+      next: ([nextPara1, nextPara2]) => {
+        console.log(nextPara1)
+        console.log(nextPara2)
+      }
+    })
+We Can Call The Function From Add It Like A Value For A Variable.
+  function FunctionName() {
+    return Code Block
+  }
+  let VariableName = FunctionName();
+    The Last Line Will Make The Function Work.
+-------------------------------------------------------------------------------
+V40 => 'RxJs In Practice Course Conclusion and Key Takeaways':
+ReView About What We Have Learned, LHMDLH.
+-------------------------------------------------------------------------------
+
